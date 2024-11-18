@@ -2,12 +2,9 @@ from services.Data import sales
 from datetime import datetime
 
 class Stats:
-    def __init__(self):
-        self.sales = sales
-    
     # Informes de ventas
     # 1. Total de ventas
-    def total_sales():
+    def total_sales(self):
         sales_by_day = {}
         sales_by_week = {}
         sales_by_month = {}
@@ -51,7 +48,7 @@ class Stats:
 
     
     # 2. Total de ventas por producto
-    def total_sales_by_product():
+    def total_sales_by_product(self):
         sales_by_product = {}
         for sale in sales:
             for product in sale.products:
@@ -66,7 +63,7 @@ class Stats:
 
 
     # 3. Total de ventas por cliente
-    def total_sales_by_customer():
+    def total_sales_by_customer(self):
         sales_by_customer = {}
         for sale in sales:
             customer_id = sale.customer.id
@@ -81,7 +78,7 @@ class Stats:
 
     # Informes de pagos
     # 1. Total de pagos
-    def total_payments():
+    def total_payments(self):
         payments_by_day = {}
         payments_by_week = {}
         payments_by_month = {}
@@ -126,7 +123,7 @@ class Stats:
         }
 
     # 2. Total de pagos por cliente
-    def total_payments_by_customer():
+    def total_payments_by_customer(self):
         payments_by_customer = {}
         for sale in sales:
             customer_id = sale.customer.id
@@ -142,7 +139,7 @@ class Stats:
 
     # Informes de envíos
     # 1. Total de envíos
-    def total_shipments():
+    def total_shipments(self):
         shipments_by_day = {}
         shipments_by_week = {}
         shipments_by_month = {}
@@ -186,7 +183,7 @@ class Stats:
 
 
     # 2. Productos más enviados
-    def most_shipped_products():
+    def most_shipped_products(self):
         shipments_by_product = {}
         for sale in sales:
             for product in sale.products:
@@ -201,7 +198,7 @@ class Stats:
 
 
     # 3. Clientes con envíos pendientes
-    def customers_with_pending_shipments():
+    def customers_with_pending_shipments(self):
         pending_shipments_by_customer = {}
         for sale in sales:
             if sale.shipping is None:
@@ -226,7 +223,7 @@ class Stats:
             print("6. Total de envíos")
             print("7. Productos más enviados")
             print("8. Clientes con envíos pendientes")
-            print("9. Salir")
+            print("9. Volver")
 
             option = input("Ingrese el número de la opción deseada: ")
 
@@ -254,10 +251,6 @@ class Stats:
                 print(self.customers_with_pending_shipments())
                 break
             elif option == '9':
-                print("Saliendo...")
                 return
             else:
                 print("Opción no válida. Intente de nuevo.")
-
-    if __name__ == "__main__":
-        menu()

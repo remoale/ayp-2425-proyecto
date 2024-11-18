@@ -10,6 +10,7 @@ def main():
     while True:
         # Guardar estado del programa
         product_dicts = [product.__dict__ for product in products]
+        sales_dicts = [sale.__dict__ for sale in sales]
         customer_dicts = [customer.__dict__ for customer in customers]
         data = [product_dicts, sales_dicts, customer_dicts]
         with open('status.json', 'w') as f:
