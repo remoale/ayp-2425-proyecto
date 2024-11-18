@@ -1,7 +1,24 @@
 from models.Product import Product
 from services.Data import products
 
+
 class ProductManagement:
+    """
+    Clase para la gestión de productos en la tienda.
+
+    Atributos:
+    products (list): Lista de productos disponibles.
+
+    Métodos:
+    __init__(): Inicializa los atributos de la clase.
+    __str__(): Devuelve una representación en cadena de la tienda.
+    add(): Agrega un nuevo producto a la lista.
+    search(): Busca productos en la lista según diferentes criterios.
+    modify(): Modifica la información de un producto existente.
+    remove(): Elimina un producto de la lista.
+    menu(): Muestra el menú de opciones para la gestión de productos.
+    """
+
     def __init__(self):
         self.products = products
 
@@ -10,63 +27,90 @@ class ProductManagement:
         return (f'Store(products={self.products})')
     
 
-    def add_product(self):
-        category = input('Introduzca la categoría del producto: ').strip()
-        try:
-            price = float(input('Introduzca el precio del producto: '))
-        except ValueError:
-            print('Entrada no válida, por favor introduzca un número válido para el precio.')
-            return
+    def add(self):
         name = input('Introduzca el nombre del producto: ').strip()
-        try:
-            inventory = int(input('Introduzca la disponibilidad en inventario del producto: '))
-        except ValueError:
-            print('Entrada no válida, por favor introduzca un número válido para la disponibilidad en inventario.')
-            return
+        price = None
+        while price is None:
+            try:
+                price = float(input('Introduzca el precio del producto: '))
+            except ValueError:
+                print('Entrada no válida, por favor introduzca un número válido para el precio.')
+        description = input('Introduzca la descripción del producto: ').strip()
+        category = input('Introduzca la categoría del producto: ').strip()
+        inventory = None
+        while inventory is None:
+            try:
+                inventory = int(input('Introduzca la disponibilidad en inventario del producto: '))
+            except ValueError:
+                print('Entrada no válida, por favor introduzca un número válido para la disponibilidad en inventario.')
         optional = input('Opcional: modelo de vehículos para los cual aplica (y/n): ').strip().lower()
         compatible_vehicles = []
         if optional == 'y':
             compatible_vehicles = input('Introduzca los modelos de vehículos separados por coma: ').strip().split(',')
-        product = Product(category=category, price=price, name=name, inventory=inventory, compatible_vehicles=compatible_vehicles)
+        id = len(self.products) + 1
+        product = Product(id, name, price, description, category, inventory, compatible_vehicles)
         self.products.append(product)
-        return
-            
+        print()
+        print('Producto agregado:', product.name)
+        print()
     
-    def search_product(self):
+    
+    def search(self):
+        # 1. Filtrar por categoría
         filtered_products = []
-        print('Seleccione la opción por la que desea filtrar:')
+        print('Seleccione un filtro para buscar un producto:')
+        print()
         option = None
         while option not in [1, 2, 3, 4]:
-            option = int(input('1. Categoría\n2. Precio\n3. Nombre\n4. Disponibilidad en inventario\n'))
-            if option not in [1, 2, 3, 4]:
-                print('Opción no válida, por favor seleccione una opción válida.')
+            print('1. Categoría\n2. Precio\n3. Nombre\n4. Disponibilidad en inventario\n')
+            try:
+                option = int(input('Seleccione una opción: '))
+                if option not in [1, 2, 3, 4]:
+                    print('Opción no válida, por favor seleccione una opción válida.')
+            except ValueError:
+                print('Entrada no válida, por favor introduzca un número.')
         if option == 1:
             category = input('Introduzca la categoría: ').strip()
             filtered_products = [product for product in self.products if product.category == category]
         elif option == 2:
-            price = float(input('Introduzca el precio: '))
+            while True:
+                try:
+                    price = float(input('Introduzca el precio: '))
+                    break
+                except ValueError:
+                    print('Entrada no válida, por favor introduzca un número válido para el precio.')
             filtered_products = [product for product in self.products if product.price == price]
         elif option == 3:
-            name = input('Introduzca el nombre: ').strip()
-            filtered_products = [product for product in self.products if product.name == name]
+            name = input('Introduzca el nombre: ').strip().lower()
+            filtered_products = [product for product in self.products if name in product.name.lower()]
         elif option == 4:
-            inventory = int(input('Introduzca la disponibilidad en inventario: '))
+            while True:
+                try:
+                    inventory = int(input('Introduzca la disponibilidad en inventario: '))
+                    break
+                except ValueError:
+                    print('Entrada no válida, por favor introduzca un número válido para la disponibilidad en inventario.')
             filtered_products = [product for product in self.products if product.inventory == inventory]
-        
+        print()
+
+        # 2. Mostrar resultados
         if len(filtered_products) == 0:
             raise ValueError('No se encontraron productos con los criterios dados')
         elif len(filtered_products) == 1:
+            print('\nProducto encontrado:', product.name, '\n')
             product = filtered_products[0]
+            return product
         else:
             print('Se encontraron múltiples productos:')
             for product in filtered_products:
                 print(f'{product.id}. {product.name}')      
             while True:
                 try:
-                    choice = int(input('Seleccione el ID del producto: '))
+                    choice = int(input('\nSeleccione el ID del producto: '))
                     if choice in [product.id for product in self.products]:
                         for product in filtered_products:
                             if product.id == choice:
+                                print('\nProducto seleccionado:', product.name, '\n')
                                 return product
                     else:
                         print('Opción no válida, por favor seleccione un número válido.')
@@ -74,7 +118,7 @@ class ProductManagement:
                     print('Entrada no válida, por favor introduzca un número.')
     
 
-    def modify_product(self):
+    def modify(self):
         # 1. Buscar el producto
         name = input('Introduzca el nombre del producto a modificar: ').strip()
         product_to_modify = self.search_product(name)
@@ -111,10 +155,9 @@ class ProductManagement:
         raise ValueError('Producto no encontrado')
     
 
-    def remove_product(self):
+    def remove(self):
         # 1. Buscar el producto
-        name = input('Introduzca el nombre del producto a modificar: ').strip()
-        product_to_remove = self.search_product(name)
+        product_to_remove = self.search_product()
 
         # 2. Eliminar el producto de la lista
         self.products.remove(product_to_remove)
@@ -124,15 +167,18 @@ class ProductManagement:
     def menu(self):
         option = None
         while option not in [1, 2, 3, 4, 5]:
-            option = int(input('1. Agregar producto\n2. Modificar producto\n3. Buscar producto\n4. Eliminar producto\n5. Volver'))
+            print('1. Agregar producto', '2. Modificar producto',
+                  '3. Buscar producto', '4. Eliminar producto', '5. Volver', '', sep='\n')
+            option = int(input('Seleccione una opción: '))
+            print()
             if option not in [1, 2, 3, 4, 5]:
                 print('Opción no válida, por favor seleccione una opción válida.')
         if option == 1:
-            self.add_product()
+            self.add()
         elif option == 2:
-            self.modify_product()
+            self.modify()
         elif option == 3:
-            self.search_product()
+            self.search()
         elif option == 4:
-            self.remove_product()
+            self.remove()
         return

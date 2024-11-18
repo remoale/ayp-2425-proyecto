@@ -1,13 +1,12 @@
 from models.Customer import Customer
-from models.Product import Product
 from models.Payment import Payment
+from models.Shipping import Shipping
 
 class Sale:
-    def __init__(self, customer: Customer, products: list[Product], quantity: int,
-                 payment: Payment, shipping: str, summary: dict):
+    def __init__(self, customer: Customer, products: list[dict], quantity: int,
+                 payment: Payment, shipping: Shipping, summary: dict):
         self.customer = customer
         self.products = products
-        self.quantity = quantity
         self.payment = Payment
         self.shipping = shipping
         self.summary = summary

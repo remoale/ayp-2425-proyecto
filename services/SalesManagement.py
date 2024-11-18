@@ -1,10 +1,32 @@
-from models.Product import Product
-from models.Customer import Customer
+from models.Shipping import Shipping
+from models.Sale import Sale
 from services.ProductManagement import ProductManagement
+from services.CustomerManagement import CustomerManagement
+from services.ShippingManagement import ShippingManagement
 from services.Data import products, sales, customers
+from datetime import datetime
+from random import randint
+
 
 class SalesManagement:
-    def __init__(self, sales, customers):
+    """
+    Clase para la gestión de ventas en la tienda.
+
+    Atributos:
+    sales (list): Lista de ventas realizadas.
+    customers (list): Lista de clientes registrados.
+
+    Métodos:
+    __init__(sales, customers): Inicializa los atributos sales y customers.
+    __str__(): Devuelve una representación de texto de las ventas.
+    register(): Registra una nueva venta solicitando los datos necesarios.
+    search(): Busca una venta registrada.
+    invoice(): Genera una factura para una venta registrada.
+    menu(): Muestra el menú de opciones para la gestión de ventas.
+    """
+
+    def __init__(self):
+        self.products = products
         self.sales = sales
         self.customers = customers
 
@@ -14,66 +36,71 @@ class SalesManagement:
     
 
     def register(self):
+        date = datetime.now()
+
         # 1. Solicitar los datos del cliente
-        name = input('Introduzca el nombre del cliente: ').strip()
-        id = input('Introduzca la cédula o RIF del cliente: ').strip()
-        email = input('Introduzca el correo electrónico del cliente: ').strip()
-        address = input('Introduzca la dirección del cliente: ').strip()
-        phone = input('Introduzca el número de teléfono del cliente: ').strip()
-        legal = input('¿El cliente es una persona jurídica? (y/n) ').strip().lower() == 'y'
-        customer = Customer(name, id, email, address, phone, legal)
-        if legal:
-            legal_name = input('Nombre de la persona de contacto: ').strip()
-            legal_phone = input('Teléfono de la persona de contacto: ').strip()
-            legal_email = input('Correo electrónico de la persona de contacto: ').strip()
-            customer.legal_name = legal_name
-            customer.legal_phone = legal_phone
-            customer.legal_email = legal_email
+        print('Datos del cliente:')
+        while True:
+            choice = input('Es cliente registrado? (y/n) ').strip().lower() == 'y'
+            customer = None
+            if choice:
+                id = int(input('Introduzca cédula o RIF: '))
+                try:
+                    customer = [customer for customer in self.customers if customer.id == id][0]
+                    break
+                except IndexError:
+                    print('El cliente no se encuentra registrado')
+            if not choice or customer is None:
+                customer = CustomerManagement().register()
+                break
 
         # 2. Solicitar los productos vendidos
-        products = []
-        while choice != 'n':
-            product = ProductManagement.search_product()
+        sold_products = {}
+        choice = 'y'
+        while choice == 'y':
+            product = ProductManagement().search()
             quantity = int(input('Introduzca la cantidad del producto comprado: '))
-            for i in range(quantity):
-                products.append((product, quantity))
+            sold_products[f'{product.name}'] = quantity
             choice = input('¿Desea agregar otro producto? (y/n) ').strip().lower()
+        
 
         # 3. Solicitar el método de pago
-        print('Seleccione el método de pago:',
-            '1. Punto de venta\n2. Pago móvil\n3. Transferencia\n4. Zelle\n5. PayPal\n6. Efectivo:')
-        payment = None
-        while payment not in [1, 2, 3, 4, 5, 6]:
-            payment = int(input(''))
-            if payment == 1:
+        print('\n1. Punto de venta', '2. Pago móvil', '3. Transferencia',
+              '4. Zelle', '5. PayPal', '6. Efectivo:\n', sep='\n')
+        choice = None
+        while choice not in [1, 2, 3, 4, 5, 6]:
+            choice = int(input('Seleccione el método de pago: '))
+            if choice == 1:
                 payment = 'Punto de venta'
-            elif payment == 2:
+            elif choice == 2:
                 payment = 'Pago móvil'
-            elif payment == 3:
+            elif choice == 3:
                 payment = 'Transferencia'
-            elif payment == 4:
+            elif choice == 4:
                 payment = 'Zelle'
-            elif payment == 5:
+            elif choice == 5:
                 payment = 'PayPal'
             else:    
-                payment = 'Efectivo'
+                choice = 'Efectivo'
 
-        # 4. Solicitar el método de envío
-        print('Seleccione el método de envío:')
-        shipping = int(input('1.Zoom\n2.Delivery'))
-        if shipping == 1:
-            shipping = 'Zoom'
-        else:
-            shipping = 'Delivery'
+        # 4. Definir el envío
+        shipping = ShippingManagement().register()
 
         # 5. Resumen de la venta
         print('Total de compra:')
-        subtotal = sum([product.price for product, quantity in products])
+        subtotal = 0
+        for key, value in sold_products.items():
+            for product in self.products:
+                if product.name == key:
+                    subtotal += product.price * value
         print('Subtotal: ', subtotal)
 
-        # Descuento
+        # 6. Solicitar monto de pago
+        payment_amount = float(input('Introduzca el monto a pagar: '))
+
+        # 5% de descuento si el cliente es jurídico y paga de contado
         discount = 0
-        if customer.legal: # and payment_amount == subtotal
+        if customer.legal and payment_amount == subtotal:
             discount = subtotal * 0.05
             print('Descuento: ', discount)
             subtotal -= discount
@@ -88,12 +115,46 @@ class SalesManagement:
 
         # Total
         total = subtotal + tax + igtf - discount
-    
 
-    def invoice(self):
+        # Summary
+        summary = {'subtotal': subtotal, 'descuentos': discount, 'tax': tax, 'igtf': igtf, 'total': total}
+
+        sale = Sale(customer, products, payment, shipping,
+                    {'subtotal': subtotal, 'descuentos': discount, 'tax': tax, 'igtf': igtf, 'total': total},
+                    summary=summary)
+        self.sales.append(sale)
+        print('Venta registrada con éxito!\n')
+        self.invoice(sale)
+        
+
+    def invoice(self, sale):
+        invoice = randint(100000, 1000000)
+        sale.invoice = invoice
+        print(f'\nFactura: {invoice}')
+
+        # Fecha de emisión
+        date = datetime.now()
+        print(f'Fecha de emisión: {date}')
+
+        # Monto a pagar
+        print(f'Subtotal: {sale.summary["subtotal"]}')
+        print(f'Descuentos: {sale.summary["descuentos"]}')
+        print(f'IVA: {sale.summary["tax"]}')
+        print(f'IGTF: {sale.summary["igtf"]}')
+        print(f'Total: {sale.summary["total"]}')
+
         # Si el cliente es una persona jurídica, se podrá realizar compras a crédito (pago en 15 o 30 días)
-        # Si el cliente es una persona natural, se deberá realizar el pago al momento de la compra 
-        pass
+        # Si el cliente es natural su factura se realizará para compras en el momento
+        if sale.customer.legal:
+            # Términos de pago
+            term = randint(0, 1)
+            if term == 0:
+                term = 15
+            else:
+                term = 30
+            print(f'Términos de pago: Tiene un plazo de {term} días desde la emisión de la factura para realizar el pago.')
+        
+        print('Gracias por su compra!')
 
 
     def search(self):
@@ -134,18 +195,21 @@ class SalesManagement:
 
     def menu(self):
         while True:
-            print('Seleccione una opción:')
             print('1. Registrar venta')
             print('2. Consultar venta')
             print('3. Generar factura')
             print('4. Volver')
+            print()
             option = int(input('Ingrese el número de la opción deseada: '))
             if option == 1:
                 self.register()
+                break
             elif option == 2:
                 self.search()
+                break
             elif option == 3:
                 self.invoice()
+                break
             elif option == 4:
                 break
             else:

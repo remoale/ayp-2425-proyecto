@@ -1,8 +1,25 @@
 from services.Data import customers
 from models.Customer import Customer
 
+
 class CustomerManagement:
-    def __init__(self, customers):
+    """
+    Clase para la gestión de clientes en la tienda.
+
+    Atributos:
+    customers (list): Lista de clientes registrados.
+
+    Métodos:
+    __init__(customers): Inicializa los atributos de la clase.
+    __str__(): Devuelve una representación de texto de los clientes.
+    register(): Registra un nuevo cliente solicitando los datos necesarios.
+    modify(customer): Modifica la información de un cliente existente.
+    search(): Busca un cliente registrado.
+    delete(): Elimina un cliente de la lista.
+    menu(): Muestra el menú de opciones para la gestión de clientes.
+    """
+    
+    def __init__(self):
         self.customers = customers
 
     
@@ -26,11 +43,12 @@ class CustomerManagement:
             customer.legal_phone = legal_phone
             customer.legal_email = legal_email
         self.customers.append(customer)
-        print('Cliente registrado exitosamente.')
-    
+        print('\nCliente registrado con éxito!\n')
+        return customer
+
 
     def modify(self, customer):
-        id = input('Introduzca la cédula o RIF del cliente a eliminar: ').strip()
+        id = input('Introduzca la cédula o RIF del cliente a modificar: ').strip()
         if id in [customer.id for customer in self.customers]:
             print('Seleccione el campo a modificar:', '1. Nombre', '2. Cédula/RIF',
                 '3. Correo electrónico', '4. Dirección', '5. Teléfono',
@@ -80,11 +98,22 @@ class CustomerManagement:
 
     
     def search(self):
-        id = input('Introduzca la cédula o RIF del cliente a buscar: ').strip()
-        for customer in self.customers:
-            if customer.id == id:
-                print(customer)
-                return customer
+        print('1. Buscar por cédula o RIF', '2. Buscar por correo electrónico', sep='\n')
+        choice = None
+        while choice not in [1, 2]:
+            choice = int(input(''))
+        if choice == 1:
+            id = input('Introduzca la cédula o RIF del cliente a buscar: ').strip()
+            for customer in self.customers:
+                if customer.id == id:
+                    print('Cliente encontrado:', customer.name)
+                    return customer
+        else:
+            email = input('Introduzca el correo electrónico del cliente a buscar: ').strip()
+            for customer in self.customers:
+                if customer.email == email:
+                    print('Cliente encontrado:', customer.name)
+                    return customer
         print('Cliente no encontrado.')
 
     
@@ -97,13 +126,14 @@ class CustomerManagement:
                 option = int(input(''))
             if option == 1:
                 self.register()
+                break
             elif option == 2:
                 customer = self.search()
                 self.modify(customer)
+                break
             elif option == 3:
                 self.delete()
+                break
             elif option == 4:
                 self.search()
-            else:
                 break
-            return
