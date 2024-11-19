@@ -203,13 +203,10 @@ class SalesManagement:
             option = int(input('Ingrese el número de la opción deseada: '))
             if option == 1:
                 self.register()
-                break
             elif option == 2:
                 self.search()
-                break
             elif option == 3:
                 self.invoice()
-                break
             elif option == 4:
                 break
             else:

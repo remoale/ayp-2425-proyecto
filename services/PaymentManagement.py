@@ -112,10 +112,8 @@ class PaymentManagement:
             choice = int(input("Seleccione una opción: "))
             if choice == 1:
                 self.register()
-                break
             elif choice == 2:
                 self.search()
-                break
             elif choice == 3:
                 break
             else:

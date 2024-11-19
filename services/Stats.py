@@ -231,25 +231,18 @@ class Stats:
                 print(self.total_sales())
             elif option == '2':
                 print(self.total_sales_by_product())
-                break
             elif option == '3':
                 print(self.total_sales_by_customer())
-                break
             elif option == '4':
                 print(self.total_payments())
-                break
             elif option == '5':
                 print(self.total_payments_by_customer())
-                break
             elif option == '6':
                 print(self.total_shipments())
-                break
             elif option == '7':
                 print(self.most_shipped_products())
-                break
             elif option == '8':
                 print(self.customers_with_pending_shipments())
-                break
             elif option == '9':
                 return
             else:

@@ -173,12 +173,15 @@ class ProductManagement:
             print()
             if option not in [1, 2, 3, 4, 5]:
                 print('Opción no válida, por favor seleccione una opción válida.')
-        if option == 1:
-            self.add()
-        elif option == 2:
-            self.modify()
-        elif option == 3:
-            self.search()
-        elif option == 4:
-            self.remove()
-        return
+            if option == 1:
+                self.add()
+            elif option == 2:
+                self.modify()
+            elif option == 3:
+                self.search()
+            elif option == 4:
+                self.remove()
+            elif option == 5:
+                break
+            else:
+                print('Opción no válida, por favor intente de nuevo.')

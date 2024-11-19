@@ -121,19 +121,20 @@ class CustomerManagement:
         while True:
             print('1. Registrar cliente', '2. Modificar cliente', '3. Eliminar cliente',
                   '4. Buscar cliente', '5. Volver', sep='\n')
-            option = None
-            while option not in [1, 2, 3, 4]:
+            try:
                 option = int(input(''))
-            if option == 1:
-                self.register()
-                break
-            elif option == 2:
-                customer = self.search()
-                self.modify(customer)
-                break
-            elif option == 3:
-                self.delete()
-                break
-            elif option == 4:
-                self.search()
-                break
+                if option == 1:
+                    self.register()
+                elif option == 2:
+                    customer = self.search()
+                    self.modify(customer)
+                elif option == 3:
+                    self.delete()
+                elif option == 4:
+                    self.search()
+                elif option == 5:
+                    break
+                else:
+                    print('Opción no válida. Intente de nuevo.')
+            except ValueError:
+                print('Entrada no válida. Por favor, introduzca un número.')
